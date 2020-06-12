@@ -107,6 +107,7 @@ export class App extends Component {
   //Start the timer
   startTimer() {
     if (this.state.timerIsRunning) {
+      this.pauseTimer();
       return; //If the start button is pressed twice, it creates another ticker and so time moves faster than a second. Hence this prevention of multiple clicks on start button is required.
     }
     //Make the timer status as running
@@ -122,8 +123,10 @@ export class App extends Component {
 
   resetTimer() {
     this.setState({
-      timerMin: this.state.sessionLengthMin,
+      timerMin: 25,
       timerSec: 0,
+      sessionLengthMin: 25,
+      breakLengthMin: 5,
       timerIsRunning: false,
     });
 
