@@ -1,4 +1,6 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Pomodoro clock can be used to manage your time and get tasks completed.
+
+Status : Work In Progress
 
 ## Available Scripts
 
