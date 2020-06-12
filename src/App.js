@@ -11,7 +11,7 @@ export class App extends Component {
       sessionLengthMin: 25,
       timerMin: 25,
       timerSec: 0,
-      timerIsRunning: true,
+      timerIsRunning: false,
       sessionIsRunning: true,
     };
 
@@ -20,12 +20,9 @@ export class App extends Component {
     this.pauseTimer = this.pauseTimer.bind(this);
     this.resetTimer = this.resetTimer.bind(this);
 
-     //setInterval reference
-      this.handleInterval = null;
-   
+    //setInterval reference
+    this.handleInterval = null;
   }
-
-  
 
   //Handle the change in minutes of Break or Session length
   changeLength(component, direction) {
@@ -35,6 +32,7 @@ export class App extends Component {
           return {
             sessionLengthMin: state.sessionLengthMin + 1,
             timerMin: state.sessionLengthMin + 1, //The same session length should reflect in timer value of Min.
+            timerSec: 0,
           };
         });
       } else {
@@ -46,6 +44,7 @@ export class App extends Component {
           return {
             sessionLengthMin: state.sessionLengthMin - 1,
             timerMin: state.sessionLengthMin - 1,
+            timerSec: 0,
           };
         });
       }
@@ -67,51 +66,67 @@ export class App extends Component {
     }
   }
 
-  
+  //Do the ticking (reducing the seconds and mins of the timer)
+  ticker = () => {
+    console.log(this.state.timerMin, this.state.timerSec);
+
+    if (this.state.timerMin == 0 && this.state.timerSec == 0) {
+      //Stop the timer at 00:00
+
+      //Once the timer reaches 00:00 , we check if the timer that finished was of 'session'. If so then we set the timer min to the break length min.
+      //If the finished timer was of a break session, then we set the timer min to the session length min for the next iteration
+      this.setState(
+        (state, props) => {
+          return { sessionIsRunning: !state.sessionIsRunning };
+        },
+        () => {
+          if (this.state.sessionIsRunning == false) {
+            //Session is over, now we should set timer to break length min
+
+            this.setState({ timerMin: this.state.breakLengthMin });
+          } else {
+            //Break is over, now start session with timer min as session length min set by user
+            this.setState({ timerMin: this.state.sessionLengthMin });
+          }
+        }
+      ); //We mark it as false when the session timer reaches 00:00
+    }
+
+    this.setState((state, props) => {
+      if (state.timerSec == 0) {
+        //If previous second was 0 then next decrement should bring it to 59.
+        return {
+          timerSec: 59,
+          timerMin: state.timerMin - 1,
+        };
+      }
+      return { timerSec: state.timerSec - 1 };
+    });
+  };
 
   //Start the timer
   startTimer() {
-
-    const ticker = () => {
-      if (this.state.timerIsRunning && this.state.timerMin >= 0) {
-        if (this.state.timerMin == 0 && this.state.timerSec == 0) {
-          //Stop the timer at 00:00, now set timer min to break min and again start the timer (For Break)
-          return;
-        }
-
-      
-        this.setState((state, props) => {
-          if (state.timerSec == 0) {
-            //If previous second was 0 then next decrement should bring it to 59.
-            return {
-              timerSec: 59,
-              timerMin: state.timerMin - 1,
-            };
-          }
-          return { timerSec: state.timerSec - 1 };
-        });
-      
-      }
-    }
-    
-   
-    this.handleInterval = setInterval(ticker, 1000);
-
-    
-    
-    
+    //Make the timer status as running
+    this.setState({ timerIsRunning: true });
+    this.handleInterval = setInterval(this.ticker, 1000);
   }
 
   pauseTimer() {
+    //Make the timer status as not running
+    this.setState({ timerIsRunning: false });
     clearInterval(this.handleInterval);
   }
 
   resetTimer() {
     this.setState({
       timerMin: this.state.sessionLengthMin,
-    timerSec:0});
+      timerSec: 0,
+      timerIsRunning: false,
+    });
 
+    clearInterval(this.handleInterval);
   }
+
   render() {
     return (
       <div className="App">
@@ -122,6 +137,10 @@ export class App extends Component {
             <i
               className="fa fa-arrow-down fa-2x"
               onClick={() => {
+                if (this.state.timerIsRunning) {
+                  //If timer is running, dont allow to change session or break length
+                  return;
+                }
                 this.changeLength("break", "down");
               }}
             />
@@ -129,6 +148,10 @@ export class App extends Component {
             <i
               className="fa fa-arrow-up fa-2x"
               onClick={() => {
+                if (this.state.timerIsRunning) {
+                  //If timer is running, dont allow to change session or break length
+                  return;
+                }
                 this.changeLength("break", "up");
               }}
             />
@@ -139,6 +162,10 @@ export class App extends Component {
             <i
               className="fa fa-arrow-down fa-2x"
               onClick={() => {
+                //If timer is running, dont allow to change session or break length
+                if (this.state.timerIsRunning) {
+                  return;
+                }
                 this.changeLength("session", "down");
               }}
             />
@@ -148,6 +175,10 @@ export class App extends Component {
             <i
               className="fa fa-arrow-up fa-2x"
               onClick={() => {
+                if (this.state.timerIsRunning) {
+                  //If timer is running, dont allow to change session or break length
+                  return;
+                }
                 this.changeLength("session", "up");
               }}
             />
@@ -156,14 +187,20 @@ export class App extends Component {
           <div className="session-timer-container">
             <h2 className="session-timer-header">Session</h2>
             <p className="session-timer">
-              {this.state.timerMin < 10 ?  '0'+ this.state.timerMin : this.state.timerMin} : {this.state.timerSec < 10 ?  '0'+ this.state.timerSec : this.state.timerSec}
+              {this.state.timerMin < 10 //Add extra '0' in timer min and sec if it is a single digit value
+                ? "0" + this.state.timerMin
+                : this.state.timerMin}{" "}
+              :{" "}
+              {this.state.timerSec < 10
+                ? "0" + this.state.timerSec
+                : this.state.timerSec}
             </p>
           </div>
 
           <div className="button-bar">
             <i className="fa fa-play fa-2x" onClick={this.startTimer} />
             <i className="fa fa-pause fa-2x" onClick={this.pauseTimer} />
-            <i className="fa fa-refresh fa-2x" onClick={this.resetTimer}/>
+            <i className="fa fa-refresh fa-2x" onClick={this.resetTimer} />
           </div>
         </div>
       </div>
