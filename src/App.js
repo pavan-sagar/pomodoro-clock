@@ -106,6 +106,9 @@ export class App extends Component {
 
   //Start the timer
   startTimer() {
+    if (this.state.timerIsRunning) {
+      return; //If the start button is pressed twice, it creates another ticker and so time moves faster than a second. Hence this prevention of multiple clicks on start button is required.
+    }
     //Make the timer status as running
     this.setState({ timerIsRunning: true });
     this.handleInterval = setInterval(this.ticker, 1000);
@@ -128,6 +131,8 @@ export class App extends Component {
   }
 
   render() {
+    let timerStyle =
+      this.state.timerMin == 0 ? { color: "red" } : { color: "white" }; //Make time red when last minute is left
     return (
       <div className="App">
         <div className="pomodoro-container">
@@ -138,7 +143,7 @@ export class App extends Component {
               className="fa fa-arrow-down fa-2x"
               onClick={() => {
                 if (this.state.timerIsRunning) {
-                  //If timer is running, dont allow to change session or break length
+                  //If timer is running, dont allow to change session or break length.
                   return;
                 }
                 this.changeLength("break", "down");
@@ -186,7 +191,7 @@ export class App extends Component {
 
           <div className="session-timer-container">
             <h2 className="session-timer-header">Session</h2>
-            <p className="session-timer">
+            <p className="session-timer" style={timerStyle}>
               {this.state.timerMin < 10 //Add extra '0' in timer min and sec if it is a single digit value
                 ? "0" + this.state.timerMin
                 : this.state.timerMin}{" "}
