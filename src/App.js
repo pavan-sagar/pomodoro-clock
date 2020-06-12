@@ -68,11 +68,12 @@ export class App extends Component {
 
   //Do the ticking (reducing the seconds and mins of the timer)
   ticker = () => {
-    console.log(this.state.timerMin, this.state.timerSec);
+    
 
     if (this.state.timerMin == 0 && this.state.timerSec == 0) {
-      //Stop the timer at 00:00
-
+      //Stop the timer at 00:00 and play an alert sound
+      
+      new Audio("https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav").play();
       //Once the timer reaches 00:00 , we check if the timer that finished was of 'session'. If so then we set the timer min to the break length min.
       //If the finished timer was of a break session, then we set the timer min to the session length min for the next iteration
       this.setState(
@@ -193,7 +194,7 @@ export class App extends Component {
           </div>
 
           <div className="session-timer-container">
-            <h2 className="session-timer-header">Session</h2>
+            <h2 className="session-timer-header">{this.state.sessionIsRunning ? 'Session' : 'Break'}</h2>
             <p className="session-timer" style={timerStyle}>
               {this.state.timerMin < 10 //Add extra '0' in timer min and sec if it is a single digit value
                 ? "0" + this.state.timerMin
