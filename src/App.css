@@ -178,8 +178,9 @@ h1{
     
 }
 
-@media (min-width:414 px) and (max-width: 470px){
-  h2 {
-    font-size: 1.43rem;
+@media (min-width: 414px) {
+    
+  h2{
+    font-size: 1.23rem;
 }
 }
