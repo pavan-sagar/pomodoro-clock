@@ -43,7 +43,7 @@ h1{
   grid-column: 1 / span 2;
   margin: 0;
   justify-self: center;
-  padding: 0 6.5rem;
+  
 }
 
 .break-length-container{
@@ -122,3 +122,59 @@ h1{
   
   
 }
+
+@media (max-width: 590px){
+  h1{
+    font-size: 2rem;
+  }
+}
+
+
+@media (max-width: 500px){
+  h2{
+    font-size: 1.5rem;
+  }
+
+  .session-timer-header {
+   
+    margin-top: 3rem;
+  }
+    
+}
+
+@media (max-width: 400px){
+  h1{
+    font-size: 1.73rem;
+  }
+
+  .session-timer-header {
+   
+    margin-top: 3rem;
+  }
+
+  .session-length-container{
+    position: relative;
+    left: 0.5rem;
+  }
+
+  .session-length-minutes{
+    font-size: 1.9rem;
+  }
+
+  .break-length-container{
+    position: relative;
+    right: 1rem;
+  }
+
+  .break-length-minutes{
+    font-size: 1.9rem;
+  }
+
+  .button-bar i {
+    
+    margin: 0 0.5rem;
+    
+  }
+    
+}
+
